@@ -18,7 +18,8 @@
         % \Huge{DRAFT}
         \LARGE{Design Report} \\ ~ \\ ~ \\ }
 \author{Abdullah Al Ishtiaq \\
-        \textbf{Student Id. : 1505080}}
+        \textbf{Student Id. : 1505080} \\ 
+        Section: B ~~~~~ Group: 6}
 \date{\today}
 
 
@@ -48,8 +49,8 @@
 \tableofcontents
 \newpage
 
-\listoffigures
-\newpage
+% \listoffigures
+% \newpage
 
 %==================================================================
 
@@ -58,15 +59,15 @@
     Although TCP is widely used in major internet applications, it introduces a few vulnerabilities too. The most common of these vulnerabilities are: Denial of Service (DOS), Connection Hijacking, TCP Veto, TCP Reset attack etc.
 
 \section{TCP Reset Attack on Video Streaming}
-    TCP reset attack on video streaming applications does not target the protocol's typical method of closing a connection which uses a 4-way handshake method. Rather it uses the protocol's method of immediately terminating an unwanted, unexpected or erroneous connection. From the specifications of Transmission Control Protocol (TCP) given in RFC-0793 (September 1981) we quote, "Reset (RST) must be sent whenever a segment arrives which apparently is not intended for the current connection". It is an important property of TCP for ensuring robustness, but at the same time it has opened up a scope of exploitation. \\ 
-    In TCP reset attack on video streaming, an attacker forges a spoofed RST packet that pretends to be one coming from the original video streaming server. As a result the victim immediately closes the TCP connection and goes to CLOSED state. In addition to that, upon receiving additional packets from the original server, the victim itself sends RST packet to the server terminating the connection at the remote end. In this way the attacker can successfully disrupt video streaming on its victim's machine.
+    TCP reset attack does not target the protocol's typical method of closing a connection which uses a 4-way handshake method. Rather it uses the protocol's method of immediately terminating an unwanted, unexpected or erroneous connection. From the specifications of Transmission Control Protocol (TCP) given in RFC-0793 (September 1981) we quote, "Reset (RST) must be sent whenever a segment arrives which apparently is not intended for the current connection". It is an important property of TCP for ensuring robustness, but at the same time it has opened up a scope of exploitation. \\ 
+    In TCP reset attack on video streaming, an attacker forges a spoofed RST packet that pretends to be the one coming from the original video streaming server. As a result the victim immediately closes the TCP connection and goes to CLOSED state. In addition to that, upon receiving additional packets from the original server, the victim itself sends RST packet to the server terminating the connection at the remote end. In this way the attacker can successfully disrupt video streaming on its victim's machine.
 
 \section{Strategy}
    
     The  strategy of our attack can be described in 3 steps. Those are:
     \begin{enumerate}
-      \item First we need to find out the IP address of either the victim machine or the video server.
-      \item Then we have to sniff packets in the network to discover the other IP address, the TCP port numbers and the correct sequence number.
+      \item First we need to find out the IP address of either the victim machine or the video server. There can be quite a few machines connected to the same network and as long as we do not want to disrupt TCP connection on all of them, we need to know this information in particular prior to proceeding with our tool. Otherwise a port scanning mechanism would have sufficed. 
+      \item Then we have to sniff packets in the network to discover the other IP address, the TCP port numbers and the correct sequence number. For this purpose, the tool will require additional feature of ARP Spoofing.
       \item Finally we forge a TCP packet with correct IP addresses, TCP Port numbers and sequence number and with RST bit set and send it to the victim machine.
     \end{enumerate}
     
@@ -77,25 +78,29 @@
   
 
 \section{Timing Diagrams}
+    Timing diagrams are really important in designing an attack tool as it gives us the insight about how the protocol actually works and how an attack can exploit its various vulnerabilities. For this reason, we have closely examined the specifications of the Transmission Control Protocol provided in RFC-0793 and accordingly drawn these timing diagrams with appropriate states.
     
-    \begin{figure}
-    	\centering
-    	\includegraphics[width=.95\textwidth]{Pictures/TCP_Timing_Diagram.png}
-    	\caption{TCP Timing Diagram}
-    	\label{fig:TCP_Tim}
-    \end{figure}
+    \subsection{Typical Timing Diagram}
+        
+        In Figure \ref{fig:TCP_Tim}, the timing diagram of typical communication for video streaming between the streaming server and victim is shown. At first the connection is established through a 3-way handshake. In the "ESTABLISHED" state the two parties can start exchanging messages which are represented in the figure as "ABC", "DEF", etc. The connection can finally be closed at the end of the communication by either of the parties and in both cases another 4-way handshake will occur. 
+        
+        \begin{figure}[!h]
+        	\centering
+        	\includegraphics[width=.95\textwidth]{Pictures/TCP_Timing_Diagram.png}
+        	\caption{TCP Timing Diagram}
+        	\label{fig:TCP_Tim}
+        \end{figure}
+        
+    \subsection{Attack Timing Diagram}
     
-    In figure \ref{fig:TCP_Tim}, the timing diagram of typical communication for video streaming between the streaming server and victim is shown. Here connection can be closed by either of the parties and in both cases a 4-way handshake will occur. 
+    We will perform the TCP reset attack by sending forged RST packet from the attacker machine. The timing diagram of the attack is shown in Figure \ref{fig:RST_Attack_Tim}. In this case the victim will assume the video server has unexpectedly terminated the "ESTABLISHED" TCP connection, and immediately close the connection. Upon receiving additional messages from the actual server it will send RST back and finally the server will also close the connection receiving the RST packet. \\ 
     
-    \begin{figure}
+    \begin{figure}[!h]
     	\centering
     	\includegraphics[width=.95\textwidth]{Pictures/TCP_RST_Timing_Diagram.png}
     	\caption{TCP Reset Attack Timing Diagram} 
     	\label{fig:RST_Attack_Tim}
     \end{figure}
-    
-    We will perform the TCP reset attack by sending forged RST packet from the attacker machine. The timing diagram of the attack is shown in figure \ref{fig:RST_Attack_Tim}. In this case the victim will assume the video server has unexpectedly terminated the TCP connection, and upon receiving additional messages it will send RST back to the server. Finally the server will also close the connection receiving the RST packet. \\ 
-    These timing diagrams are drawn according to the specifications provided in RFC-0793.
     
 \section{Packet Details}
     \begin{figure}
@@ -105,16 +110,17 @@
     	\label{fig:Attack_Packet}
     \end{figure}
 
-    In figure \ref{fig:Attack_Packet}, we show the specific fields in the TCP/IP header that need to be handled in order to perform TCP reset attack. Here source IP will be the video streaming server's IP address, Destination IP will be victim's IP address, and the port numbers will be set correspondingly. Sequence number must be correctly discovered through sniffing. Finally RST bit must be set to 1. The other fields will be changed accordingly with the help of programming language libraries. Also payload to this header is not really important in this case as it is merely an RST packet.
+    In Figure \ref{fig:Attack_Packet}, we show the specific fields in the TCP/IP header that need to be handled in order to perform TCP reset attack. Here source IP will be the video streaming server's IP address, Destination IP will be victim's IP address, and the port numbers will be set correspondingly. Sequence number must be correctly discovered through sniffing. Finally RST bit must be set to 1. The other fields will be changed accordingly with the help of programming language libraries. Also payload to this header is not really important in this case as it is merely an RST packet.
 
 \section{Available Tools}
-    There are already a few available tools for many different network attacks. Among them \textbf{Netwox} is quite well known. To perform TCP reset attack from an Linux environment, the command is as follows:
+    \label{sec:netwox}
+    There are already a few available tools for many different network attacks. Among them \textbf{Netwox} is a quite well known one. To perform TCP reset attack with Netwox from an Linux environment, the command is as follows:
     
     \subfile{Codes/Netwox.tex}
     
-    Although being readily available, there is a major drawback of Netwox. For working correctly, we already know from Section \ref{sec:strategy} that sequence number of the forged packet must be within the victims window. Also port numbers must be set correctly. But sniffing is not possible with "pcap" API with packets from other devices on the network, which are connected through switch. As a result where Wireshark does not work, neither does Netwox 78 command. \\ 
+    Although being readily available, there is a major drawback of this Netwox command. For working correctly, we already know from Section \ref{sec:strategy} that sequence number of the forged packet must be within the victims window. Also port numbers must be set correctly. For doing so, sniffing is a must, but it is not possible with "pcap" API for packets from other devices on the network which are connected through switch. As a result where Wireshark does not work, neither does Netwox 78 command. \\ 
     Tests on Wireshark are mentioned in Section \ref{apx:test_wireshark} where it can be seen in Figure \ref{fig:main2vm} that the guest OS cannot sniff packets from the host OS. Similarly Netwox is tested in a VM environment from the guest OS where pcap API does not work attacking the host OS. \\
-    The result of the test can be seen in figure \ref{fig:netwox_test} where video in the browser of the host can still load the played video. So the attack failed.
+    The result of the test can be seen in Figure \ref{fig:netwox_test} where video in the browser of the host can still load the playing video. So the attack with Netwox failed.
     
     \begin{figure}
     	\centering
@@ -141,7 +147,7 @@
 
 \section{Implementation Environment}
     
-    We will use \textbf{Oracle VM VirtualBox}  for implementation purpose. The tool will be implemented in 2 phases. Those are: 
+    We will use \textbf{Oracle VM VirtualBox}  for implementation purpose. The attack tool will be implemented in 2 phases. Those are: 
     
     \begin{figure}
         \centering
@@ -153,9 +159,9 @@
     
     \begin{enumerate}
       
-      \item First we will implement the TCP reset attack part assuming that we can sniff packets of victim machine. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:main2vm}), packets for guest OS can be sniffed from host OS. As TCP reset attack requires sniffing packets destined for other devices, we will use host OS as the attacker machine and guest os of the VirtualBox as victim machine for this part. This topology is shown in Figure \ref{fig:topolgy_implement} where guest OS is connected through bridged network adapter. Video streaming server is remotely situated in the network.
+      \item First we will implement the TCP reset attack part assuming that we can sniff packets of victim machine. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:main2vm}), packets for guest OS can be sniffed from host OS. As TCP reset attack requires sniffing packets destined for other devices, we will use host OS as the attacker machine and guest OS of the VirtualBox as victim machine for this part. This topology is shown in Figure \ref{fig:topolgy_implement} where guest OS is connected through bridged network adapter. Video streaming server is remotely situated in the network.
       
-      \item In this phase, we will implement the part where we can sniff packets from different machines on the network. For this part we will flip the roles of attacker and victim of Figure \ref{fig:topolgy_implement} where we will try to sniff packets in guest OS. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:vm2main}), normally guest OS cannot sniff host OS' packets, but if we can enrich the tool with additional attacking mechanisms of \textbf{Man in the Middle} and take advantage of \textbf{ARP cache} of the network switch, it will become a very unique tool as compared to other available tools at this moment.
+      \item In this phase, we will implement the part with which we can sniff packets from different machines on the network. If we can enrich the tool with additional attacking mechanisms of \textbf{ARP Spoofing} and take advantage of \textbf{ARP cache} of the network switch, the tool should be able to both sniff packets properly. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:vm2main}), normally guest OS cannot sniff host OS' packets. So for implementation of this part, we will flip the roles of attacker and victim of Figure \ref{fig:topolgy_implement} where we will try to sniff packets in the guest OS. 
       
       \end{enumerate}
     
@@ -169,23 +175,37 @@
         \label{fig:topology}
     \end{figure}
     
-     As our target environment, we have designed a topology as shown in figure \ref{fig:topology}. Here the attacker and the victim are in the same subnet and the server is in a remote network. Without the loss of generality there can be more switches or routers in the network, and more hosts connected to the switch. This type of topology is carefully chosen as we need to sniff packets destined to the victim machine to gather information about source IP, TCP port numbers and sequence number in order to successfully perform a TCP reset attack.
-
-   
+     As our target environment, we have designed a topology as shown in Figure \ref{fig:topology}. Here the attacker and the victim are in the same subnet and the server is in a remote network. Without the loss of generality there can be more switches or routers in the network, and more hosts connected to the switch. This type of topology is carefully chosen as we need to sniff packets destined to the victim machine to gather information about source IP, TCP port numbers and sequence number in order to successfully perform a TCP reset attack. \\
+     Provided that the tool is a success, it will reach the state of one of a kind because currently available tools cannot work properly, as discussed in Section \ref{sec:netwox}, in such a environment.
 
 
 \section{Justification}
-    When the victim machine in our design receives the RST packet, it does not have any idea about the packet's actual origin. If we correctly specify IP addresses, port numbers and sequence number, it can perfectly mimic its identity as an original. So the victim machine has no option other than to terminate its TCP connection. The main challenge in this approach is to forge a packet with correct sequence number and to send it quickly within the victim's window. If we can do that, it can be inferred from above discussion that our TCP reset attack will be successful.
+    In our design we have included both ARP spoofing and TCP reset mechanism. It can be inferred from above discussion that if ARP spoofing can successfully find out correct IP, port numbers and the sequence number, we can exactly mimic a RST packet from the original server. \\
+    When the victim machine receives the RST packet, it does not have any idea about the packet's actual origin. So the victim machine has no other option but to terminate its TCP connection. However the main challenge in this approach is to forge the packet and to send it in time so that it is within the victim's window. If we can do that, it can be said that our TCP reset attack will be successful.
 
 \section{Defence Mechanism}
+    A defense mechanism for our attack tool can easily be derived from the above design. A simple time delay can effectively disable the effect of our attack. It is described below:
+    
+    \begin{enumerate}
+        \item Whenever we receive an RST packet from video streaming server, we add a time delay before closing the connection rather than doing so immediately.
+        \item If we receive additional packets from the server within the time delay with correct sequence numbers, we can assume the RST packet was actually a spoofed one.
+        \item Otherwise after the time delay, we close the connection in the same way as it would normally do.
+    \end{enumerate}
+    
+    Here this defense mechanism should work propoerly because the original server is likely to retransmit the packets that were lost due too ARP spoofing and upon receiving the actual packets the victim can take appropriate measure.
+    
+\section{Conclusion}
+    We have discussed different aspects of the design of an attack tool to exploit a particular vulnerability of TCP. Nevertheless it is an inseparable part of today's internet. So as our concluding remarks, we hope that this attack tool may in turn provide us the insight about how to defend against such attacks.
+    
 
-\section{Appendix A: Testing Video Straming Server Connection}
+% \newpage    
+\section{Appendix A: Testing Video Streaming Server Connection}
     \label{apx:test_server}
-    We have performed some tests to determine which website can be used for implementing our attack tool. If we can perform correctly for a website with TCP connection, it can be generalized for any website using the same.
+    We have performed some tests to determine which video streaming website can be used for implementing our attack tool. If we can perform correctly for a single website using TCP connection, it can be generalized for any website using the same.
     
     \subsection{YouTube}
-    The test failed. YouTube does not use TCP connection. Rather it uses UDP connection. It is shown in Figure \ref{fig:youtube} with the help of Wireshark.
-    \begin{figure}
+    The test failed. YouTube does not use TCP connection. Rather it uses UDP connection. It is shown in Figure \ref{fig:youtube} with the help of Wireshark. So YouTube cannot be used while implementing our attack tool
+    \begin{figure}[!h]
         \centering
         \includegraphics[width=.95\textwidth]{Pictures/Youtube_test.png}
         \caption{YouTube Connection}
@@ -205,7 +225,7 @@
 
 \section{Appendix B: Testing Sniffing with VM}
     \label{apx:test_wireshark}
-    We have performed test with \textbf{Oracle VM VirtualBox} to see how Wireshark behaves in this environment. Here the host OS has IP address: 172.20.56.3 and the 2 guest OS' have IP addresses: 172.20.56.50 and 172.20.56.54.
+    We have performed test with \textbf{Oracle VM VirtualBox} to see how Wireshark behaves in this environment. Here the host OS has IP address: 172.20.56.3 and the 2 guest OS' have IP addresses: 172.20.56.50 and 172.20.56.54. 
     
     \subsection{Guest Sniffing Host's Packet}
         The test failed. The guest OS cannot sniff packets of the host OS. It is shown in Figure \ref{fig:vm2main}.
