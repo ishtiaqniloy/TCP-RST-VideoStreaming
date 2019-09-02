@@ -49,8 +49,8 @@
 \tableofcontents
 \newpage
 
-% \listoffigures
-% \newpage
+\listoffigures
+\newpage
 
 %==================================================================
 
@@ -66,7 +66,7 @@
    
     The  strategy of our attack can be described in 3 steps. Those are:
     \begin{enumerate}
-      \item First we need to find out the IP address of either the victim machine or the video server. There can be quite a few machines connected to the same network and as long as we do not want to disrupt TCP connection on all of them, we need to know this information in particular prior to proceeding with our tool. Otherwise a port scanning mechanism would have sufficed. 
+      \item First we need to find out the IP address of either the victim machine or the video server. There can be quite a few machines connected to the same network and as long as we do not want to disrupt TCP connections on all of them, we need to know this information in particular prior to proceeding with our tool. Otherwise a port scanning mechanism would have sufficed. 
       \item Then we have to sniff packets in the network to discover the other IP address, the TCP port numbers and the correct sequence number. For this purpose, the tool will require additional feature of ARP Spoofing.
       \item Finally we forge a TCP packet with correct IP addresses, TCP Port numbers and sequence number and with RST bit set and send it to the victim machine.
     \end{enumerate}
@@ -161,7 +161,7 @@
       
       \item First we will implement the TCP reset attack part assuming that we can sniff packets of victim machine. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:main2vm}), packets for guest OS can be sniffed from host OS. As TCP reset attack requires sniffing packets destined for other devices, we will use host OS as the attacker machine and guest OS of the VirtualBox as victim machine for this part. This topology is shown in Figure \ref{fig:topolgy_implement} where guest OS is connected through bridged network adapter. Video streaming server is remotely situated in the network.
       
-      \item In this phase, we will implement the part with which we can sniff packets from different machines on the network. If we can enrich the tool with additional attacking mechanisms of \textbf{ARP Spoofing} and take advantage of \textbf{ARP cache} of the network switch, the tool should be able to both sniff packets properly. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:vm2main}), normally guest OS cannot sniff host OS' packets. So for implementation of this part, we will flip the roles of attacker and victim of Figure \ref{fig:topolgy_implement} where we will try to sniff packets in the guest OS. 
+      \item In this phase, we will implement the part with which we can sniff packets from different machines on the network. If we can enrich the tool with additional attacking mechanisms of \textbf{ARP Spoofing} and take advantage of \textbf{ARP cache} of the network switch, the tool should be able to sniff packets properly. As shown in Section \ref{apx:test_wireshark} (Figure \ref{fig:vm2main}), normally guest OS cannot sniff host OS' packets. So for implementation of this part, we will flip the roles of attacker and victim of Figure \ref{fig:topolgy_implement} where we will try to sniff packets in the guest OS. 
       
       \end{enumerate}
     
