@@ -7,8 +7,8 @@ from scapy.layers.inet import *
 import scapy
 
 
-srcIP = "192.168.0.103"
-destIP = "192.168.0.108"
+srcIP = "192.168.0.107"
+destIP = "192.168.0.105"
 
 IPLayer = IP(dst=destIP, src=srcIP)
 
