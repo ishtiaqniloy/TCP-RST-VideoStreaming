@@ -12,22 +12,25 @@ from scapy.all import *
 from scapy.layers.inet import *
 import scapy
 
-
-
-# srcIP = "192.168.0.103"
-destIP = "192.168.0.105"
+victim_ip = sys.argv[1]
 
 def func(pkt):
     print("PKT INFO:")
-    print(pkt.__class__)
+    # print(pkt.__class__)
+
+    print(pkt.summary())
+
     print(pkt[IP].src)
     print(pkt[IP].dst)
+
     print(pkt[TCP].sport)
     print(pkt[TCP].dport)
+    print(pkt[TCP].ack)
+
     print()
 
 
 
 # sniff(filter="ip", prn=lambda x:x.sprintf("{IP:%IP.src% -> %IP.dst%\n}"))
-pkt = sniff(filter="TCP and dst host 192.168.0.102", prn=func, store=0)
+pkt = sniff(filter="tcp and dst host " + victim_ip, prn=func, store=0)
 

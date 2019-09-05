@@ -1,10 +1,20 @@
 #!/usr/bin/python3
-from scapy.all import *
-from scapy.all import send
-from scapy.layers.inet import *
 
-# srcIP = "192.168.0.103"
-destIP = "192.168.0.103"
+#running command: python Sniffer.py victimIP
+
+import sys  #for command line argument
+import time
+import os
+import shutil
+import tempfile
+from random import randint
+from scapy.all import *
+from scapy.layers.inet import *
+import scapy
+
+victim_ip = sys.argv[1]
+
+
 
 def spoof_tcp(pkt):
     IPLayer = IP(dst=destIP, src=pkt[IP].dst)
