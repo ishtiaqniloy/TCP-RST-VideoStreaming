@@ -29,5 +29,5 @@ def func(pkt):
 
 
 # sniff(filter="ip", prn=lambda x:x.sprintf("{IP:%IP.src% -> %IP.dst%\n}"))
-pkt = sniff(filter="TCP and dst host 192.168.0.105", prn=func, store=0)
+pkt = sniff(filter="TCP and dst host 192.168.0.102", prn=func, store=0)
 
