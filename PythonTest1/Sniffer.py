@@ -4,9 +4,6 @@
 
 import sys  #for command line argument
 import time
-import os
-import shutil
-import tempfile
 from random import randint
 from scapy.all import *
 from scapy.layers.inet import *
