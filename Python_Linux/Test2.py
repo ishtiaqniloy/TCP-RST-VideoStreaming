@@ -14,3 +14,10 @@ print(my_mac)
 # # ip.send()
 # for i in range(0, 100):
 #     send(IP(src="192.168.0.105",dst="192.168.0.105")/ICMP()/"Hello World")
+
+
+from get_nic import getnic
+
+interfaces = getnic.interfaces()
+print(interfaces)
+getnic.ipaddr(interfaces)

