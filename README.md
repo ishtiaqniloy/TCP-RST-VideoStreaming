@@ -1,6 +1,8 @@
 # CSE_406_TCP_Reset_Attack_Video_Streaming
 This repository contains the design and implementation (in python) of an attack tool to perform TCP reset attack on video streaming applications. 
 
+Scapy 2.4.0 package needs to be installed prior to performing the attack. To install scapy: pip install scapy==2.4.0
+
 First we need to perform MITM attack to be able to sniff packets from the victim. Then we will start sending TCP RST packets to the victim to disrupt the video stram.
 
 Python Implementation folder contains the scripts to perform the attack. Commands:-
