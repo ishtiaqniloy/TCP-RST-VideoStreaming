@@ -26,7 +26,7 @@ def get_ip():
 
 
 #==============================================================
-# Collecct Necessary Information 
+# Collect Necessary Information 
 #==============================================================
 
 
@@ -107,4 +107,5 @@ while  1:
 	
 	print()
 
-	time.sleep(randint(5, 10))		#random sleep, 
+	time.sleep(randint(5, 10))		#random sleep 
+									#otherwise too much traffic

