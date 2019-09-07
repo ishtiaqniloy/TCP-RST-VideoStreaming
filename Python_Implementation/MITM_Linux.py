@@ -112,4 +112,3 @@ while  1:
 	
 	time.sleep(randint(5, 10))		#random sleep
 									#otherwise too much traffic
-
