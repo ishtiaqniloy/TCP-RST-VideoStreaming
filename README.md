@@ -10,4 +10,4 @@ Python Implementation folder contains the scripts to perform the attack. Command
 2. If server is within the same subnet, enable attacket to sniff all packets between the server and the victim: python MITM.py victim_ip server_ip
 3. Begin TCP RST attack: python RST.py victim_ip
 
-Documentation folder contains the design and the implementation reports. It also inculdes testing screenshots.
+Documentation folder contains the design and the implementation reports. It also inculdes diagrams and testing screenshots.
