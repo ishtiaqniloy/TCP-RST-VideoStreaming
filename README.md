@@ -1,5 +1,5 @@
-# CSE_406_TCP_Reset_Attack_Video_Streaming
-This repository contains the design and implementation (in python) of an attack tool to perform TCP reset attack on video streaming applications. 
+# TCP_RST_VideoStreaming
+This repository contains the design and implementation (in python) of an attack tool to perform TCP reset attack on video streaming applications. This tool is tested on LAN as well as WAN.
 
 Scapy 2.4.0 package needs to be installed prior to performing the attack. To install scapy: pip install scapy==2.4.0
 
@@ -11,3 +11,5 @@ Python Implementation folder contains the scripts to perform the attack. Command
 3. Begin TCP RST attack: python RST.py victim_ip
 
 Documentation folder contains the design and the implementation reports. It also inculdes diagrams and testing screenshots.
+
+Tools/Technologies: Python, Scapy
